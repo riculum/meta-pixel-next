@@ -304,6 +304,10 @@ Pre-releases:
 npm version 1.0.0-beta.1
 npm publish --tag beta
 ```
+---
+
+## More information
+[Facebook Conversions API Doku](https://developers.facebook.com/docs/marketing-api/conversions-api)
 
 ---
 

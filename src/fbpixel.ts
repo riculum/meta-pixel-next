@@ -50,32 +50,54 @@ const callFbq = (...args: any[]) => {
     window.fbq(...args);
 };
 
+/** Generate a unique event_id (can be order ID or UUID) */
+export function generateEventId(prefix: string = "evt"): string {
+    const randomString = Math.random().toString(36).slice(2);
+    const timestamp = Date.now().toString(36);
+    return `${prefix}_${timestamp}_${randomString}`;
+}
+
 /** Track a standard event with strict param typing */
-export function fbTrack<E extends FBStandardEvent>(event: E, params?: FBEventMap[E]) {
-    callFbq("track", event, params ?? {});
+export function fbTrack<E extends FBStandardEvent>(
+    event: E,
+    params?: FBEventMap[E],
+    eventId: string = generateEventId(event)  // Default to generated event_id
+) {
+    // Attach event_id to params
+    const fullParams = { ...params, event_id: eventId };
+    callFbq("track", event, fullParams);
 }
 
 /** Track a custom event */
 export function fbTrackCustom<T extends Record<string, unknown> = Record<string, unknown>>(
     name: string,
-    params?: T
+    params?: T,
+    eventId: string = generateEventId(name)  // Default to generated event_id
 ) {
-    callFbq("trackCustom", name, params ?? {});
+    // Attach event_id to params
+    const fullParams = { ...params, event_id: eventId };
+    callFbq("trackCustom", name, fullParams);
 }
 
 /** Optional: target a single Pixel if users run multiple IDs */
 export function fbTrackSingle<E extends FBStandardEvent>(
     pixelId: string,
     event: E,
-    params?: FBEventMap[E]
+    params?: FBEventMap[E],
+    eventId: string = generateEventId(event)  // Default to generated event_id
 ) {
-    callFbq("trackSingle", pixelId, event, params ?? {});
+    // Attach event_id to params
+    const fullParams = { ...params, event_id: eventId };
+    callFbq("trackSingle", pixelId, event, fullParams);
 }
 
 export function fbTrackSingleCustom<T extends Record<string, unknown> = Record<string, unknown>>(
     pixelId: string,
     name: string,
-    params?: T
+    params?: T,
+    eventId: string = generateEventId(name)  // Default to generated event_id
 ) {
-    callFbq("trackSingleCustom", pixelId, name, params ?? {});
+    // Attach event_id to params
+    const fullParams = { ...params, event_id: eventId };
+    callFbq("trackSingleCustom", pixelId, name, fullParams);
 }
