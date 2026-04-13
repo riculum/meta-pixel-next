@@ -1,4 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import { ScriptProps } from 'next/script';
 
 declare global {
     interface Window {
@@ -13,8 +14,10 @@ type MetaPixelProps = {
     trackPageView?: boolean;
     /** Render <noscript> fallback (default: true) */
     noscript?: boolean;
+    /** Next.js Script loading strategy (default: "lazyOnload") */
+    strategy?: ScriptProps["strategy"];
 };
-declare function MetaPixel({ pixelId, trackPageView, noscript, }: MetaPixelProps): react_jsx_runtime.JSX.Element | null;
+declare function MetaPixel({ pixelId, trackPageView, noscript, strategy, }: MetaPixelProps): react_jsx_runtime.JSX.Element | null;
 
 declare global {
     interface Window {
@@ -67,13 +70,15 @@ interface FBEventMap {
         status?: boolean;
     } & Partial<Money>;
 }
+/** Generate a unique event_id (can be order ID or UUID) */
+declare function generateEventId(prefix?: string): string;
 /** Track a standard event with strict param typing */
-declare function fbTrack<E extends FBStandardEvent>(event: E, params?: FBEventMap[E]): void;
+declare function fbTrack<E extends FBStandardEvent>(event: E, params?: FBEventMap[E], eventId?: string): void;
 /** Track a custom event */
-declare function fbTrackCustom<T extends Record<string, unknown> = Record<string, unknown>>(name: string, params?: T): void;
+declare function fbTrackCustom<T extends Record<string, unknown> = Record<string, unknown>>(name: string, params?: T, eventId?: string): void;
 /** Optional: target a single Pixel if users run multiple IDs */
-declare function fbTrackSingle<E extends FBStandardEvent>(pixelId: string, event: E, params?: FBEventMap[E]): void;
-declare function fbTrackSingleCustom<T extends Record<string, unknown> = Record<string, unknown>>(pixelId: string, name: string, params?: T): void;
+declare function fbTrackSingle<E extends FBStandardEvent>(pixelId: string, event: E, params?: FBEventMap[E], eventId?: string): void;
+declare function fbTrackSingleCustom<T extends Record<string, unknown> = Record<string, unknown>>(pixelId: string, name: string, params?: T, eventId?: string): void;
 
 type Standard<E extends FBStandardEvent> = {
     type: "standard";
@@ -87,4 +92,4 @@ type Custom<T extends Record<string, unknown> = Record<string, unknown>> = {
 };
 declare function useFbClick<E extends FBStandardEvent, T extends Record<string, unknown> = Record<string, unknown>>(opts: Standard<E> | Custom<T>): () => void;
 
-export { type FBEventMap, type FBStandardEvent, FB_STANDARD_EVENTS, MetaPixel, fbTrack, fbTrackCustom, fbTrackSingle, fbTrackSingleCustom, useFbClick };
+export { type FBEventMap, type FBStandardEvent, FB_STANDARD_EVENTS, MetaPixel, fbTrack, fbTrackCustom, fbTrackSingle, fbTrackSingleCustom, generateEventId, useFbClick };

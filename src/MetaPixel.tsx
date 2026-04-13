@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import type { ScriptProps } from "next/script";
 import React from "react";
 
 declare global {
@@ -17,12 +18,15 @@ export type MetaPixelProps = {
     trackPageView?: boolean;
     /** Render <noscript> fallback (default: true) */
     noscript?: boolean;
+    /** Next.js Script loading strategy (default: "lazyOnload") */
+    strategy?: ScriptProps["strategy"];
 };
 
 export function MetaPixel({
                               pixelId,
                               trackPageView = true,
                               noscript = true,
+                              strategy = "lazyOnload",
                           }: MetaPixelProps) {
     if (!pixelId) return null;
 
@@ -45,7 +49,7 @@ export function MetaPixel({
 
     return (
         <>
-            <Script id="fb-pixel" strategy="afterInteractive">
+            <Script id="fb-pixel" strategy={strategy}>
                 {inline}
             </Script>
 

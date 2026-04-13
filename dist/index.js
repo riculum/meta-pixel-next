@@ -5,7 +5,8 @@ import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
 function MetaPixel({
   pixelId,
   trackPageView = true,
-  noscript = true
+  noscript = true,
+  strategy = "lazyOnload"
 }) {
   if (!pixelId) return null;
   const inline = `
@@ -25,7 +26,7 @@ function MetaPixel({
     }
   `;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx(Script, { id: "fb-pixel", strategy: "afterInteractive", children: inline }),
+    /* @__PURE__ */ jsx(Script, { id: "fb-pixel", strategy, children: inline }),
     noscript && /* @__PURE__ */ jsx("noscript", { children: /* @__PURE__ */ jsx(
       "img",
       {
@@ -55,17 +56,26 @@ var callFbq = (...args) => {
   if (typeof window === "undefined" || typeof window.fbq !== "function") return;
   window.fbq(...args);
 };
-function fbTrack(event, params) {
-  callFbq("track", event, params ?? {});
+function generateEventId(prefix = "evt") {
+  const randomString = Math.random().toString(36).slice(2);
+  const timestamp = Date.now().toString(36);
+  return `${prefix}_${timestamp}_${randomString}`;
 }
-function fbTrackCustom(name, params) {
-  callFbq("trackCustom", name, params ?? {});
+function fbTrack(event, params, eventId = generateEventId(event)) {
+  const fullParams = { ...params, event_id: eventId };
+  callFbq("track", event, fullParams);
 }
-function fbTrackSingle(pixelId, event, params) {
-  callFbq("trackSingle", pixelId, event, params ?? {});
+function fbTrackCustom(name, params, eventId = generateEventId(name)) {
+  const fullParams = { ...params, event_id: eventId };
+  callFbq("trackCustom", name, fullParams);
 }
-function fbTrackSingleCustom(pixelId, name, params) {
-  callFbq("trackSingleCustom", pixelId, name, params ?? {});
+function fbTrackSingle(pixelId, event, params, eventId = generateEventId(event)) {
+  const fullParams = { ...params, event_id: eventId };
+  callFbq("trackSingle", pixelId, event, fullParams);
+}
+function fbTrackSingleCustom(pixelId, name, params, eventId = generateEventId(name)) {
+  const fullParams = { ...params, event_id: eventId };
+  callFbq("trackSingleCustom", pixelId, name, fullParams);
 }
 
 // src/useFbClick.ts
@@ -76,6 +86,6 @@ function useFbClick(opts) {
   };
 }
 
-export { FB_STANDARD_EVENTS, MetaPixel, fbTrack, fbTrackCustom, fbTrackSingle, fbTrackSingleCustom, useFbClick };
+export { FB_STANDARD_EVENTS, MetaPixel, fbTrack, fbTrackCustom, fbTrackSingle, fbTrackSingleCustom, generateEventId, useFbClick };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
